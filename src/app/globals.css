@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* React Flow styles */
+@import "reactflow/dist/style.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* React Flow custom styles */
+.react-flow__node {
+  font-size: 12px;
+}
+
+.react-flow__edge {
+  stroke: #374151;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected {
+  stroke: #3b82f6;
+  stroke-width: 3;
+}
+
+.react-flow__handle {
+  background: #374151;
+  border: 2px solid #fff;
+}
+
+.react-flow__handle.source {
+  background: #10b981;
+}
+
+.react-flow__handle.target {
+  background: #ef4444;
+}
+
+.react-flow__controls {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__controls button {
+  border: none;
+  background: white;
+  color: #374151;
+}
+
+.react-flow__controls button:hover {
+  background: #f9fafb;
+  color: #111827;
+}
+
+.react-flow__minimap {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
