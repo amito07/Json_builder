@@ -88,7 +88,7 @@ export interface Block {
 export interface JumpingLogic {
   id: number;
   group_no: number;
-  conditions: any[];
+  conditions: unknown[];
 }
 
 export interface Group {

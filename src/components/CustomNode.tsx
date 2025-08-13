@@ -184,3 +184,5 @@ export const CustomNode = memo(({ data, selected }: CustomNodeProps) => {
     </div>
   );
 });
+
+CustomNode.displayName = 'CustomNode';

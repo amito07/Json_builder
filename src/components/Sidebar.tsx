@@ -509,7 +509,7 @@ export default function Sidebar({
               </div>
               {(formData.validationTerms || []).length === 0 && (
                 <p className="text-xs text-gray-500 italic">
-                  No terms added yet. Click "Load Default Terms" to start.
+                  No terms added yet. Click &quot;Load Default Terms&quot; to start.
                 </p>
               )}
             </div>

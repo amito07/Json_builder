@@ -24,6 +24,7 @@ import {
   GroupFormData,
   GroupJSON,
   IDCounters,
+  Option,
 } from "@/types";
 import { Download, Eye, EyeOff, Folder, Plus } from "lucide-react";
 import { CustomEdge } from "./CustomEdge";
@@ -190,6 +191,7 @@ export function JSONBuilder() {
         )
       );
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setEdges, nodes, connections, setGroups, setNodes]
   );
 
@@ -639,7 +641,7 @@ export function JSONBuilder() {
         groupId: blockData.groupId || selectedGroupId || 1,
         required: blockData.required === "true",
         options: blockData.options
-          ? blockData.options.map((opt: any) => opt.value)
+          ? blockData.options.map((opt: Option) => opt.value)
           : [],
         validationMin: blockData.validations?.min,
         validationMax: blockData.validations?.max,
@@ -724,35 +726,35 @@ export function JSONBuilder() {
     [setEdges, setConnections, setGroups, setNodes]
   );
 
-  const deleteNode = useCallback(
-    (nodeId: string) => {
-      // Extract block ID from node ID
-      const blockId = parseInt(nodeId.replace("block-", ""));
+  // const deleteNode = useCallback(
+  //   (nodeId: string) => {
+  //     // Extract block ID from node ID
+  //     const blockId = parseInt(nodeId.replace("block-", ""));
 
-      // Remove node and its edges
-      setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-      setEdges((eds) =>
-        eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
-      );
+  //     // Remove node and its edges
+  //     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+  //     setEdges((eds) =>
+  //       eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+  //     );
 
-      // Remove connections involving this block
-      setConnections((prev) =>
-        prev.filter(
-          (conn) =>
-            conn.sourceBlockId !== blockId && conn.targetBlockId !== blockId
-        )
-      );
+  //     // Remove connections involving this block
+  //     setConnections((prev) =>
+  //       prev.filter(
+  //         (conn) =>
+  //           conn.sourceBlockId !== blockId && conn.targetBlockId !== blockId
+  //       )
+  //     );
 
-      // Remove block from groups
-      setGroups((prev) =>
-        prev.map((group) => ({
-          ...group,
-          blocks: group.blocks.filter((block) => block.id !== blockId),
-        }))
-      );
-    },
-    [setNodes, setEdges, setConnections]
-  );
+  //     // Remove block from groups
+  //     setGroups((prev) =>
+  //       prev.map((group) => ({
+  //         ...group,
+  //         blocks: group.blocks.filter((block) => block.id !== blockId),
+  //       }))
+  //     );
+  //   },
+  //   [setNodes, setEdges, setConnections]
+  // );
 
   const generateJSON = useCallback((): GroupJSON[] => {
     return groups.map((group) => ({
