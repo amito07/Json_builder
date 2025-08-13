@@ -61,9 +61,9 @@ export function JSONBuilder() {
     groupId: selectedGroupId || 1,
     required: false,
     options: [],
-    validationRegex: "",
     validationMin: undefined,
     validationMax: undefined,
+    validationTerms: [],
     enableSkip: false,
     skipToId: undefined,
     skipToGroup: undefined,
@@ -411,9 +411,15 @@ export function JSONBuilder() {
             : null,
         required: data.required ? "true" : undefined,
         validations: {
-          ...(data.validationRegex && { regex: data.validationRegex }),
           ...(data.validationMin !== undefined && { min: data.validationMin }),
           ...(data.validationMax !== undefined && { max: data.validationMax }),
+          ...(data.validationTerms &&
+            data.validationTerms.length > 0 && { terms: data.validationTerms }),
+          ...(data.blockType === "otp" && {
+            bypass: data.validationBypass,
+            device: data.validationDevice,
+            server: data.validationServer,
+          }),
         },
         ...(data.enableSkip &&
           data.skipToId !== undefined &&
@@ -554,9 +560,15 @@ export function JSONBuilder() {
             : null,
         required: data.required ? "true" : undefined,
         validations: {
-          ...(data.validationRegex && { regex: data.validationRegex }),
           ...(data.validationMin !== undefined && { min: data.validationMin }),
           ...(data.validationMax !== undefined && { max: data.validationMax }),
+          ...(data.validationTerms &&
+            data.validationTerms.length > 0 && { terms: data.validationTerms }),
+          ...(data.blockType === "otp" && {
+            bypass: data.validationBypass,
+            device: data.validationDevice,
+            server: data.validationServer,
+          }),
         },
         ...(data.enableSkip &&
           data.skipToId !== undefined &&
@@ -629,9 +641,12 @@ export function JSONBuilder() {
         options: blockData.options
           ? blockData.options.map((opt: any) => opt.value)
           : [],
-        validationRegex: blockData.validations?.regex || "",
         validationMin: blockData.validations?.min,
         validationMax: blockData.validations?.max,
+        validationTerms: blockData.validations?.terms || [],
+        validationBypass: blockData.validations?.bypass || false,
+        validationDevice: blockData.validations?.device || false,
+        validationServer: blockData.validations?.server || true,
         enableSkip: !!blockData.skip,
         skipToId: blockData.skip?.id,
         skipToGroup: blockData.skip?.group_no,
@@ -783,9 +798,12 @@ export function JSONBuilder() {
             groupId: selectedGroupId || 1,
             required: false,
             options: [],
-            validationRegex: "",
             validationMin: undefined,
             validationMax: undefined,
+            validationTerms: [],
+            validationBypass: false,
+            validationDevice: false,
+            validationServer: true,
             enableSkip: false,
             skipToId: undefined,
             skipToGroup: undefined,

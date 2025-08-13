@@ -115,9 +115,12 @@ export interface FormData {
   groupId: number;
   required: boolean;
   options: string[];
-  validationRegex?: string;
   validationMin?: number;
   validationMax?: number;
+  validationTerms?: string[];
+  validationBypass?: boolean;
+  validationDevice?: boolean;
+  validationServer?: boolean;
   enableSkip: boolean;
   skipToId?: number;
   skipToGroup?: number;

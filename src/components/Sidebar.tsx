@@ -5,6 +5,25 @@ import { Edit3, Hash, Plus, Settings, Users, X } from "lucide-react";
 import React, { useState } from "react";
 import { Node } from "reactflow";
 
+// Default terms and conditions content
+const DEFAULT_TERMS = [
+  "শর্তাবলী",
+  "আমি নিশ্চিত করছি যে -",
+  "",
+  "১. আমার বয়স ১৮ বছরের অধিক এবং আমি স্বেচ্ছায়, সজ্ঞানে ও সুস্থ শরীরে, অন্যের বিনা প্ররোচনায় অত্র স্বাক্ষর প্রদান করিলাম",
+  "২. আমি নিশ্চিত করিতেছি যে উল্লেখিত তথ্যগুলি সঠিক ও সত্য",
+  "৩. আমি EU বা অন্য কোন বহিরাগত দেশের নাগরিক নই",
+  "৪. আমি পরবর্তী তিন বছরের জন্য আমার তথ্য সংরক্ষণ/প্রক্রিয়া/স্থানান্তর করার জন্য অনুমোদন ও সম্মতি প্রদান করলাম",
+  "৫. আমি স্ব-ইচ্ছায় তথ্যসমূহ প্রদান করলাম",
+  "৬. আমি নিশ্চিত করিতেছি যে তথ্য প্রদানের ব্যাপারে আমাকে কোন ধরনের অর্থপ্রদান/অন্য কোনভাবে প্ররোচনা/প্রভাবিত করা হয়নি",
+  "৭.  আমি নিশ্চিত করছি যে, প্রশিক্ষণ এবং ভবিষ্যৎ অনুসন্ধানের জন্য আমার কথোপকথন টি রেকর্ড করা যেতে পারে",
+  "৮. আমি নিশ্চিত করিতেছি যে প্রদত্ত তথ্যের ব্যাপারে ভবিষ্যতে,  বাংলাদেশ আইন অনুযায়ী, কোনো আদালত বা কর্তৃপক্ষের সামনে কোন ধরনের আইনগত অভিযোগ মূলক কর্মকান্ড গ্রহণ করিব না",
+  "৯. বর্তমান কথোপকথন বিষয়ে ভবিষ্যতে যোগাযোগের জন্য স্বেচ্ছায় অনুমতি প্রদান করছি।উপরোক্ত শর্তাবলী মেনে আমার তথ্য প্রদান করছি",
+  "",
+  "উপরোক্ত শর্তাবলী মেনে আমার তথ্য প্রদান করছি",
+  "I Agree to Sign Digitally",
+];
+
 interface SidebarProps {
   formData: FormData;
   setFormData: (data: FormData) => void;
@@ -32,6 +51,29 @@ export default function Sidebar({
   const isNumberValidation = selectedGroup?.type === "numbervalidation";
   const isEditing = !!selectedNode;
 
+  const handleBlockTypeChange = (blockType: BlockType) => {
+    const updatedFormData = { ...formData, blockType };
+
+    // Auto-populate terms when 'terms' is selected
+    if (blockType === "terms" && !formData.validationTerms?.length) {
+      updatedFormData.validationTerms = [...DEFAULT_TERMS];
+    }
+
+    // Auto-populate OTP defaults when 'otp' is selected
+    if (blockType === "otp") {
+      updatedFormData.validationBypass = formData.validationBypass ?? false;
+      updatedFormData.validationDevice = formData.validationDevice ?? false;
+      updatedFormData.validationServer = formData.validationServer ?? true; // Default to true like in your example
+    }
+
+    // Auto-populate interactive_av with default app package when selected
+    if (blockType === "interactive_av" && !formData.options?.length) {
+      updatedFormData.options = ["com.batb.bhn_tog"]; // Default app package from your example
+    }
+
+    setFormData(updatedFormData);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedGroupId) {
@@ -55,9 +97,12 @@ export default function Sidebar({
         groupId: selectedGroupId,
         required: false,
         options: [],
-        validationRegex: "",
         validationMin: undefined,
         validationMax: undefined,
+        validationTerms: [],
+        validationBypass: false,
+        validationDevice: false,
+        validationServer: true,
         enableSkip: false,
         skipToId: undefined,
         skipToGroup: undefined,
@@ -76,9 +121,12 @@ export default function Sidebar({
       groupId: selectedGroupId || 1,
       required: false,
       options: [],
-      validationRegex: "",
       validationMin: undefined,
       validationMax: undefined,
+      validationTerms: [],
+      validationBypass: false,
+      validationDevice: false,
+      validationServer: true,
       enableSkip: false,
       skipToId: undefined,
       skipToGroup: undefined,
@@ -263,12 +311,7 @@ export default function Sidebar({
           </label>
           <select
             value={formData.blockType}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                blockType: e.target.value as BlockType,
-              })
-            }
+            onChange={(e) => handleBlockTypeChange(e.target.value as BlockType)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
             disabled={!selectedGroupId}
           >
@@ -296,13 +339,16 @@ export default function Sidebar({
           </label>
         </div>
 
-        {/* Options for dropdown/multipleChoice */}
+        {/* Options for dropdown/multipleChoice/interactive_av */}
         {(formData.blockType === "dropdown" ||
           formData.blockType === "multipleChoice" ||
-          formData.blockType === "radio") && (
+          formData.blockType === "radio" ||
+          formData.blockType === "interactive_av") && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Options
+              {formData.blockType === "interactive_av"
+                ? "App Values"
+                : "Options"}
             </label>
             <div className="space-y-2">
               {formData.options.map((option, index) => (
@@ -312,7 +358,11 @@ export default function Sidebar({
                     value={option}
                     onChange={(e) => updateOption(index, e.target.value)}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-                    placeholder={`Option ${index + 1}`}
+                    placeholder={
+                      formData.blockType === "interactive_av"
+                        ? `App Package ${index + 1} (e.g., com.example.app)`
+                        : `Option ${index + 1}`
+                    }
                     disabled={!selectedGroupId}
                   />
                   <button
@@ -331,28 +381,19 @@ export default function Sidebar({
                 className="w-full px-3 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
                 disabled={!selectedGroupId}
               >
-                + Add Option
+                {formData.blockType === "interactive_av"
+                  ? "+ Add App Package"
+                  : "+ Add Option"}
               </button>
+              {formData.blockType === "interactive_av" && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Enter app package names or identifiers for interactive AV
+                  content. Example: com.batb.bhn_tog
+                </p>
+              )}
             </div>
           </div>
         )}
-
-        {/* Validation Rules */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Validation Regex
-          </label>
-          <input
-            type="text"
-            value={formData.validationRegex || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, validationRegex: e.target.value })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-            placeholder="Enter regex pattern"
-            disabled={!selectedGroupId}
-          />
-        </div>
 
         {(formData.blockType === "number" || formData.blockType === "date") && (
           <div className="grid grid-cols-2 gap-2">
@@ -393,6 +434,206 @@ export default function Sidebar({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                 disabled={!selectedGroupId}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Terms & Conditions (only for terms block type) */}
+        {formData.blockType === "terms" && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Terms & Conditions
+            </label>
+            <div className="space-y-2">
+              <div className="flex gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      validationTerms: [...DEFAULT_TERMS],
+                    })
+                  }
+                  className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                  disabled={!selectedGroupId}
+                >
+                  Load Default Terms
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      validationTerms: [
+                        ...(formData.validationTerms || []),
+                        "",
+                      ],
+                    })
+                  }
+                  className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                  disabled={!selectedGroupId}
+                >
+                  Add Term
+                </button>
+              </div>
+              <div className="max-h-40 overflow-y-auto space-y-2">
+                {(formData.validationTerms || []).map((term, index) => (
+                  <div key={index} className="flex gap-2">
+                    <textarea
+                      value={term}
+                      onChange={(e) => {
+                        const newTerms = [...(formData.validationTerms || [])];
+                        newTerms[index] = e.target.value;
+                        setFormData({ ...formData, validationTerms: newTerms });
+                      }}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 text-xs"
+                      placeholder={`Term ${index + 1}`}
+                      rows={term.length > 50 ? 3 : 1}
+                      disabled={!selectedGroupId}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newTerms = (
+                          formData.validationTerms || []
+                        ).filter((_, i) => i !== index);
+                        setFormData({ ...formData, validationTerms: newTerms });
+                      }}
+                      className="px-2 py-1 text-red-600 border border-red-300 rounded hover:bg-red-50 transition-colors text-xs"
+                      disabled={!selectedGroupId}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {(formData.validationTerms || []).length === 0 && (
+                <p className="text-xs text-gray-500 italic">
+                  No terms added yet. Click "Load Default Terms" to start.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* OTP Validations (only for otp block type) */}
+        {formData.blockType === "otp" && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              OTP Validation Settings
+            </label>
+            <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+              {/* Bypass Validation */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Bypass Validation
+                  </label>
+                  <p className="text-xs text-gray-500">
+                    Allow skipping OTP verification
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.validationBypass}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        validationBypass: e.target.checked,
+                      })
+                    }
+                    className="sr-only peer"
+                    disabled={!selectedGroupId}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* Device Validation */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Device Validation
+                  </label>
+                  <p className="text-xs text-gray-500">
+                    Verify OTP through device authentication
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.validationDevice}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        validationDevice: e.target.checked,
+                      })
+                    }
+                    className="sr-only peer"
+                    disabled={!selectedGroupId}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* Server Validation */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Server Validation
+                  </label>
+                  <p className="text-xs text-gray-500">
+                    Verify OTP through server-side validation
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.validationServer}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        validationServer: e.target.checked,
+                      })
+                    }
+                    className="sr-only peer"
+                    disabled={!selectedGroupId}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* Validation Status Summary */}
+              <div className="pt-2 border-t border-gray-300">
+                <p className="text-xs text-gray-600 font-medium">
+                  Active Validations:
+                </p>
+                <div className="flex gap-2 mt-1 flex-wrap">
+                  {formData.validationBypass && (
+                    <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">
+                      Bypass Enabled
+                    </span>
+                  )}
+                  {formData.validationDevice && (
+                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                      Device Auth
+                    </span>
+                  )}
+                  {formData.validationServer && (
+                    <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">
+                      Server Auth
+                    </span>
+                  )}
+                  {!formData.validationBypass &&
+                    !formData.validationDevice &&
+                    !formData.validationServer && (
+                      <span className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">
+                        No validation enabled
+                      </span>
+                    )}
+                </div>
+              </div>
             </div>
           </div>
         )}
